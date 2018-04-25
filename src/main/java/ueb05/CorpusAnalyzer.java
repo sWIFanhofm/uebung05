@@ -1,29 +1,37 @@
 package ueb05;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 class CorpusAnalyzer {
 	private List<String> theses;
 
+	/**
+	 * @param thesesIterator
+	 */
 	CorpusAnalyzer(Iterator<String> thesesIterator) {
 		// TODO Alle Titel in die this.theses Liste übernehmen
+        while(thesesIterator.hasNext()){
+            theses.add(thesesIterator.next());
+        }
 	}
 
 	/**
 	 * Gibt die Anzahl der angefertigten Theses zurück
 	 */
 	int countTheses() {
-		throw new UnsupportedOperationException();
+		return theses.size();
 	}
 
 	/**
 	 * Gibt die durchschnittliche Länge von Titeln in Worten zurück
 	 */
 	int averageThesisTitleLength() {
-		throw new UnsupportedOperationException();
+		int n = 0;
+		for(String s : theses){
+		    n += s.split(" ").length;
+        }
+
+        return n / theses.size();
 	}
 
 	/**
@@ -31,7 +39,21 @@ class CorpusAnalyzer {
 	 * Liste der ersten Wörter der Titel zurück.
 	 */
 	List<String> uniqueFirstWords() {
-		throw new UnsupportedOperationException();
+		Set<String> hset = new HashSet<>();
+
+		for(String s : theses){
+			hset.add(s.split(" ")[0]);
+		}
+
+		List<String> list = new LinkedList<>();
+		list.addAll(hset);
+		list.sort(new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) { //absteigend sortieren, o1.compareTo(02) ist aufsteigend sortieren
+				return (o2.compareTo(o1));
+			}
+		});
+		return list;
 	}
 
 	/**
@@ -39,7 +61,28 @@ class CorpusAnalyzer {
 	 * in `blackList` vorkommen durch Sternchen ersetzt (so viele * wie Buchstaben).
 	 */
 	Iterator<String> censoredIterator(Set<String> blackList) {
-		throw new UnsupportedOperationException();
+		return new Iterator<String>() {
+			Iterator<String> it = theses.iterator();
+
+			@Override
+			public boolean hasNext() {
+				return it.hasNext();
+			}
+
+			@Override
+			public String next() {
+				String s = it.next();
+				for(String a : blackList){
+					StringBuilder sb = new StringBuilder();
+					int n = a.length();
+					while (n-- > 0)
+						sb.append(a);
+
+					s = s.replaceAll(a, "*");
+				}
+				return s;
+			}
+		};
 	}
 
 	/**
