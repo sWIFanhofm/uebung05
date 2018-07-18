@@ -2,17 +2,17 @@ package ueb05;
 
 import java.util.*;
 
+import static org.apache.commons.lang3.StringUtils.repeat;
+
 class CorpusAnalyzer {
-	private List<String> theses;
+	private List<String> theses = new LinkedList<>();
 
 	/**
 	 * @param thesesIterator
 	 */
 	CorpusAnalyzer(Iterator<String> thesesIterator) {
-		// TODO Alle Titel in die this.theses Liste übernehmen
-        while(thesesIterator.hasNext()){
-            theses.add(thesesIterator.next());
-        }
+		while(thesesIterator.hasNext())
+			theses.add(thesesIterator.next());
 	}
 
 	/**
@@ -27,11 +27,11 @@ class CorpusAnalyzer {
 	 */
 	int averageThesisTitleLength() {
 		int n = 0;
-		for(String s : theses){
-		    n += s.split(" ").length;
-        }
+		for(String w : theses){
+			n += w.split(" ").length;
+		}
 
-        return n / theses.size();
+		return n / theses.size();
 	}
 
 	/**
@@ -40,19 +40,12 @@ class CorpusAnalyzer {
 	 */
 	List<String> uniqueFirstWords() {
 		Set<String> hset = new HashSet<>();
-
 		for(String s : theses){
 			hset.add(s.split(" ")[0]);
 		}
-
 		List<String> list = new LinkedList<>();
 		list.addAll(hset);
-		list.sort(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) { //absteigend sortieren, o1.compareTo(02) ist aufsteigend sortieren
-				return (o2.compareTo(o1));
-			}
-		});
+		list.sort(Collections.reverseOrder());
 		return list;
 	}
 
@@ -62,7 +55,7 @@ class CorpusAnalyzer {
 	 */
 	Iterator<String> censoredIterator(Set<String> blackList) {
 		return new Iterator<String>() {
-			Iterator<String> it = theses.iterator();
+			Iterator<String> it;
 
 			@Override
 			public boolean hasNext() {
@@ -72,14 +65,9 @@ class CorpusAnalyzer {
 			@Override
 			public String next() {
 				String s = it.next();
-				for(String a : blackList){
-					StringBuilder sb = new StringBuilder();
-					int n = a.length();
-					while (n-- > 0)
-						sb.append(a);
+				for(String c  : blackList)
+					s = s.replaceAll(c, repeat("*", c.length()));
 
-					s = s.replaceAll(a, "*");
-				}
 				return s;
 			}
 		};
@@ -90,6 +78,19 @@ class CorpusAnalyzer {
 	 * wie sie in der Map abgebildet werden.
 	 */
 	List<String> normalizedTheses(Map<String, String> replace) {
-		throw new UnsupportedOperationException();
+		List<String> normalized = new LinkedList<>();
+		for(String s : theses){
+			for(Map.Entry<String, String> m : replace.entrySet()){
+				s = s.replaceAll(m.getKey(), m.getValue());
+			}
+			normalized.add(s);
+		}
+		normalized.sort(new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return Integer.compare(o1.length(), o2.length());
+			}
+		});
+		return normalized;
 	}
 }
